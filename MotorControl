@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <system.h>
+#include <io.h>
+#include <alt_types.h>
+
+#include "motor_setting.h"
+
+/*
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_0_BASE, 0, 60 , 0, 80, 5000, 0x1); //DC 1
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_1_BASE, 0, 0 , 0, 60, 5000, 0x1);
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_2_BASE, 0, 0 , 0, 60, 5000, 0x1);
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_3_BASE, 0, 0 , 0, 60, 5000, 0x1);
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_4_BASE, 0, 0 , 0, -80, 5000, 0x1); //SV 2
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_5_BASE, 0, 0 , 0, 60, 5000, 0x1); //SV 1
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_6_BASE, 0, 0 , 0, 60, 5000, 0x2); //SV 3
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_7_BASE, 0, 0 , 0, 60, 5000, 0x1); //SV 4
+*/
+
+int main (void) {
+	int i=0;
+
+	printf("Starting system!\n");
+
+	while (1) {
+	// forward
+		printf("forward\n");
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_0_BASE, 0, 80 , 0, 40, 5000, 0x1); //DC 1
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_1_BASE, 0, 80 , 0, 40, 5000, 0x1);
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_2_BASE, 0, 80 , 0, 40, 5000, 0x1);
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_3_BASE, 0, 80 , 0, 40, 5000, 0x1);
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_4_BASE, 0, 0 , 0, 60, 5000, 0x1); //SV 2
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_5_BASE, 0, 0 , 0, 60, 5000, 0x1); //SV 1
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_6_BASE, 0, 0 , 0, 60, 5000, 0x1); //SV 3
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_7_BASE, 0, 0 , 0, 60, 5000, 0x1); //SV 4
+	for(i=0;i<2000000;i++);
+
+	// turn
+	printf("sideway\n");
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_0_BASE, 0, 80 , 0, 40, 5000, 0x1); //DC 1
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_1_BASE, 0, 80 , 0, 40, 5000, 0x1);
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_2_BASE, 0, 80 , 0, 40, 5000, 0x1);
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_3_BASE, 0, 80 , 0, 40, 5000, 0x1);
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_4_BASE, 0, 60 , 0, 60, 5000, 0x1); //SV 2
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_5_BASE, 0, 60 , 0, 60, 5000, 0x1); //SV 1
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_6_BASE, 0, 60 , 0, 60, 5000, 0x2); //SV 3
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_7_BASE, 0, 60 , 0, 60, 5000, 0x2); //SV 4
+	for(i=0;i<2000000;i++);
+
+	// rotate
+	printf("rotate\n");
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_0_BASE, 0, 80 , 0, 40, 5000, 0x1); //DC 1
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_1_BASE, 0, 80 , 0, 40, 5000, 0x1);
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_2_BASE, 0, 80 , 0, 40, 5000, 0x1);
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_3_BASE, 0, 80 , 0, 40, 5000, 0x1);
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_4_BASE, 0, 100 , 0, 60, 5000, 0x2); //SV 2
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_5_BASE, 0, 60 , 0, 100, 5000, 0x1); //SV 1
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_6_BASE, 0, 100 , 0, 60, 5000, 0x2); //SV 3
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_7_BASE, 0, 60 , 0, 100, 5000, 0x1); //SV 4
+	for(i=0;i<2000000;i++);
+
+	/*
+	// sideway
+	printf("sideway\n");
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_0_BASE, 0, 40 , 0, 40, 5000, 0x1); //DC 1
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_1_BASE, 0, 40 , 0, 40, 5000, 0x1);
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_2_BASE, 0, 40 , 0, 40, 5000, 0x1);
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_3_BASE, 0, 40 , 0, 40, 5000, 0x1);
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_4_BASE, 0, 80 , 0, 60, 5000, 0x1); //SV 2
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_5_BASE, 0, 80 , 0, 80, 5000, 0x1); //SV 1
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_6_BASE, 0, 80 , 0, 60, 5000, 0x1); //SV 3
+	motor_setting(0x80000000 | A_2_CHANNEL_PWM_7_BASE, 0, 80 , 0, 80, 5000, 0x1); //SV 4
+	for(i=0;i<2000000;i++);
+*/
+	}
+	return 0;
+
+}
