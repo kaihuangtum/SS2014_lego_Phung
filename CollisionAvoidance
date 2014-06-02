@@ -1,0 +1,23 @@
+/* Wir betrachten zwei Fälle
+
+1. Fall Kollisionsdaten von Jens <- Objekt abgeschnitten. 
+Falls Kollisionspunkt kleiner als Eckpunkte
+	
+2. Falls Kollisionspunkt größer als Eckpunkte 
+*/
+
+public class CollisionAvoidance {
+
+public int[][] getOuterPoints(){
+	return null;
+	
+}
+
+public boolean isSpecialCase(int collisionpoint_X, int collisionpoint_Y, int[][] objectarray){
+	for(int i = 0; i < objectarray.length;i++){
+		
+	}
+	return false;
+}
+
+}
