@@ -13,19 +13,26 @@ public class CollisionAvoidance {
 size of the objectarray  n = "defined size", -> int objectarray [n] [2] (i.e. the coordinate (4/7) in objectarray [0] -> objectarray [0] [0] = 4,
 obectarray [0] [1] = 29
 */
+
+//A better idea is maybe to calculate it with sin and cos.
 public int[][] getOuterPoints(int[][] objectarray, int car_x, int car y){
 	
 	//First outer point at max_value [0] [z], second outer point at max_value [1] [z] with z = 0 for x_value or 1 for y_value 
 	int max_value [][]= new max_value [2] [2];
-	// looking for the greatest x_value
+	// looking for the greatest y_value
 	for(int i = 1; i < objectarray.length; i ++){
-		if(int [i-1][0] < int [i] [0]){
+		if(int [i-1][1] < int [i] [1]){
 			max_value [0] [0] = int [i] [0];
 			max_value [0] [1] = int [i] [1];
 		}
+		if(int [i-1] [0] < int [i] && int [i-1] [1] > int [i] [1]){
+			max_value [1] [0] = int [i] [0];
+			max_value [1] [1] = int [i] [1];
+		}
+		
 	}
 	
-	return null;
+	return max_value;
 	
 }
 
