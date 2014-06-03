@@ -11,7 +11,7 @@ package Test // from Jens code
 public class CollisionAvoidance {
 /* This function gets the outer points of the objects. We receive an array with the coordinate of the object which can be seen by the car.
 size of the objectarray  n = "defined size", -> int objectarray [n] [2] (i.e. the coordinate (4/7) in objectarray [0] -> objectarray [0] [0] = 4,
-obectarray [0] [1] = 29
+obectarray [0] [1] = 7
 */
 
 //A better idea is maybe to calculate it with sin and cos.
