@@ -1,5 +1,23 @@
 package Navigation;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import gnu.io.CommPortIdentifier;
+import gnu.io.SerialPort;
+import gnu.io.SerialPortEvent; 
+import gnu.io.SerialPortEventListener; 
+import java.util.Enumeration;
+//serial ports connection
+import gnu.io.*;
+import java.awt.Color;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.TooManyListenersException;
+
 
 public class Test {
 	
@@ -9,7 +27,7 @@ public class Test {
 	static double target_x;
 	static double target_y;
 	static final double speed = 0.3;
-	final double distance = 40;
+	final double hypotenuse = 40;
 	
 	public static double[][][] positive_vortex_map = new double[180][1000][]; // Map with temporary vortex information about an object (180 degrees, one thousand vortexes for each degree, two coordinates for each vortex)
 	public static double[][][] negative_vortex_map = new double[180][1000][]; // All degrees that are between 0 and -180 
@@ -17,28 +35,37 @@ public class Test {
 	public static boolean[][] occupation_map = new boolean [1000][1000]; // IMPORTANT: [x-value][y-value] box size 5cm ATM; MOST IMPORTANT: point 0/0 is at array position [499][499];
 	
 
-	public Test(){
-	}
+	public static void main(String[] args){
+			
+		Test run = new Test();		
 	
-  /*	public void find_object(){
-		int x = 0;
-		int y = 0;
+		int count = 0;
 		
-		while(x <= 1000){
-			
-			while(y <= 1000){
-				
-				if(occupation_map[x][y]){
-					
-				}
-				
-				y++;
-			}
-			
-			x++;
+		for(int i = 179; i > -180; i--){
+			double x = Math.random();
+			count++;
+			run.mapVortex(i, (count * 2.0 * x));
 		}
 		
-	} */
+		run.occupy_Map();
+		
+		run.build_Obstacle();
+		
+		int i = 0;
+		
+		while(run.occupation_list[i] != null){
+		//	System.out.println("Occupied at: X: "+run.occupation_list[i][0]+" Y: "+run.occupation_list[i][1]);
+			i++;
+		}	
+		
+		System.out.println(run.detect_collision(0,0,50,50));
+		System.out.println(run.detect_collision(0,0,150,150));
+		System.out.println(run.detect_collision(0,0,250,250));
+		System.out.println(run.detect_collision(0,0,350,350));
+		System.out.println(run.detect_collision(-400,-400,290,300));
+				
+	}
+	
 	
 	public void occupy_Map(){
 		
@@ -58,8 +85,8 @@ public class Test {
 				if(positive_vortex_map[directionCount][count] != null && positive){	
 					
 				
-					int x =	(int)(positive_vortex_map[directionCount][count][0]/5)+499;
-					int y = (int)(positive_vortex_map[directionCount][count][0]/5)+499;
+					int x =	(int)(positive_vortex_map[directionCount][count][0]/5)+500;
+					int y = (int)(positive_vortex_map[directionCount][count][1]/5)+500;
 					
 					occupation_list[listcount] = new int [2];
 					occupation_list[listcount][0] = x;
@@ -67,7 +94,7 @@ public class Test {
 					listcount++;
 		
 					occupation_map[x][y] = true;
-					System.out.println("TRUE AT  X: " +x+ "  Y: "+y);
+			//		System.out.println("TRUE AT  X: " +(x)+ "  Y: "+(y));
 			
 				
 				}else{
@@ -76,8 +103,8 @@ public class Test {
 		
 				if(negative_vortex_map[directionCount][count] != null && negative){	
 						
-					int x =	(int)(negative_vortex_map[directionCount][count][0]/5)+499;
-					int y = (int)(negative_vortex_map[directionCount][count][0]/5)+499;
+					int x =	(int)(negative_vortex_map[directionCount][count][0]/5)+500;
+					int y = (int)(negative_vortex_map[directionCount][count][1]/5)+500;
 					
 					occupation_list[listcount] = new int [2];
 					occupation_list[listcount][0] = x;
@@ -85,7 +112,7 @@ public class Test {
 					listcount++;
 			
 					occupation_map[x][y] = true;
-					System.out.println("TRUE AT  X: " +x+ "  Y: "+y);
+			//		System.out.println("TRUE AT  X: " +(x)+ "  Y: "+(y));
 			
 				
 				}else{
@@ -105,6 +132,7 @@ public class Test {
 	public void build_Obstacle(){
 		
 		int outer = 0;
+		boolean print = true;
 		
 		while(occupation_list[outer] != null){
 			
@@ -115,24 +143,27 @@ public class Test {
 			
 			System.out.println(outer);
 			
-			while(occupation_list[outer + inner] != null){
+			while(occupation_list[inner] != null){
 				
 				int xi = occupation_list[inner][0];
 				int yi = occupation_list[inner][1];
 				
-				if ( (get_hypothenuse(xo,yo,xi,yi)*5) < distance)				
-					help_build_Obstacle(get_angle(xo,yo,xi,yi) , get_hypothenuse(xo,yo,xi,yi) , xi , yi);
-				 		
-				inner++;
-							
+				if ( (get_hypotenuse(xo,yo,xi,yi)*5) < hypotenuse){	
+					if(print)
+					 	System.out.println("\n\nX0: "+xo+" Y0: "+yo+" X1: "+xi+" Y1: "+yi);
+					help_build_Obstacle(get_angle(xo,yo,xi,yi)-90 , get_hypotenuse(xo,yo,xi,yi) , xi , yi ,   print);		
+				}
+				inner++;						
 			}
+			print = false;
 		}
 		
 	}
 	
-	public void help_build_Obstacle(double angle, double distance, double x, double y){
+	public void help_build_Obstacle(double angle, double distance, double x, double y,    boolean print){
 		
-		
+		if(print)
+		System.out.println("\nNEW CALL!");
 ;
 		
 		while(distance > 0){	
@@ -142,35 +173,19 @@ public class Test {
 					
 			if(occupation_map[xTemp][yTemp] == false){
 				occupation_map[xTemp][yTemp] = true;
-			//	System.out.println("SET TRUE AT: " + xTemp+ "  " + yTemp + "\n");
-			}		
+				if(print)
+					System.out.println("\n SET TRUE AT: currX: " + xTemp+" x: "+x+" currY: " + yTemp+" y: "+y);
+				if(print)
+					System.out.println("Angle: "+angle+"  Hypo: "+distance);
+				}else
+					if(print)
+					System.out.print("NO ");
+					
+				
+	
 			distance = distance-0.1;
 		}
 		
-		
-	}
-	
-	
-	
-	public static void main(String[] args){
-		
-		
-		
-		Test run = new Test();
-		
-		
-	
-		int count = 0;
-		for(int i = 179; i > -180; i--){
-			double x = Math.random();
-			count++;
-			run.mapVortex(i, (count * 2.0 * x));
-		}
-		
-		run.occupy_Map();
-		
-		run.build_Obstacle();
-	
 		
 	}
 	
@@ -226,7 +241,7 @@ public class Test {
 			positive_vortex_map[degreeInt][count][2] = angleCheck(degree);		//	3rd storage: CheckedAngle (0 to 180)
 			positive_vortex_map[degreeInt][count][3] = irDistance;				//	4th storage: Distance from car to Object
 		
-			System.out.println("Stored at positive_vortex["+degreeInt+"]["+count+"]  "+"X value: "+positive_vortex_map[degreeInt][count][0]+"   Y value: "+positive_vortex_map[degreeInt][count][1]+"   Angle: "+positive_vortex_map[degreeInt][count][2]+"   Distance: "+positive_vortex_map[degreeInt][count][3]);
+	//		System.out.println("Stored at positive_vortex["+degreeInt+"]["+count+"]  "+"X value: "+positive_vortex_map[degreeInt][count][0]+"   Y value: "+positive_vortex_map[degreeInt][count][1]+"   Angle: "+positive_vortex_map[degreeInt][count][2]+"   Distance: "+positive_vortex_map[degreeInt][count][3]);
 		}
 		
 		if (degreeInt < 0){
@@ -243,7 +258,7 @@ public class Test {
 			negative_vortex_map[degreeInt][count][2] = angleCheck(degree);		//	3rd storage: CheckedAngle (0 to 180)
 			negative_vortex_map[degreeInt][count][3] = irDistance;				//	4th storage: Distance from car to Object
 		
-			System.out.println("X value: "+negative_vortex_map[degreeInt][count][0]+"   Y value: "+negative_vortex_map[degreeInt][count][1]+"   Angle: "+negative_vortex_map[degreeInt][count][2]+"   Distance: "+negative_vortex_map[degreeInt][count][3]);
+	//		System.out.println("X value: "+negative_vortex_map[degreeInt][count][0]+"   Y value: "+negative_vortex_map[degreeInt][count][1]+"   Angle: "+negative_vortex_map[degreeInt][count][2]+"   Distance: "+negative_vortex_map[degreeInt][count][3]);
 		}
 		
 	}
@@ -286,21 +301,21 @@ public class Test {
 		
 	}
 	
-	public double get_hypothenuse(double source_x, double source_y, double target_x, double target_y){
+	public double get_hypotenuse(double source_x, double source_y, double target_x, double target_y){
 		
 		double togo_x = target_x - source_x;
 		double togo_y = target_y - source_y;
 		
-		double hypothenuse = Math.sqrt((togo_x * togo_x) + (togo_y * togo_y));
+		double hypotenuse = Math.sqrt((togo_x * togo_x) + (togo_y * togo_y));
 		
-		return hypothenuse;
+		return hypotenuse;
 	}
 	
 	public double get_angle(double source_x, double source_y, double target_x, double target_y){
 		
 		double togo_y = target_y - source_y;
 		
-		double angle = Math.round(Math.toDegrees(Math.asin(togo_y/get_hypothenuse(source_x,source_y,target_x,target_y))));
+		double angle = Math.round(Math.toDegrees(Math.asin(togo_y/get_hypotenuse(source_x,source_y,target_x,target_y))));
 		
 		return angle;
 	}
@@ -315,10 +330,35 @@ public class Test {
 		
 		double target_angle = Math.round(Math.toDegrees(Math.asin(togo_y/hypothenuse)));
 	
-		System.out.println("Target_Angle: "+ target_angle);
-		
-		
-		
+		System.out.println("Target_Angle: "+ target_angle);		
 	}
+	
+	public int[] detect_collision(int source_x, int source_y, int target_x, int target_y){
+		
+			double angle = get_angle(source_x,source_y,target_x,target_y);
+			double hypotenuse = get_hypotenuse(source_x,source_y,target_x,target_y);
+			double increase = 0;
+			
+			while(increase < hypotenuse){	
+				
+				int xTemp = (int)getX(angle,increase,target_x);
+				int yTemp = (int)getY(angle,increase,target_y);
+						
+				if(occupation_map[xTemp][yTemp]){
+					System.out.println("C O L L I S I O N    D E T E C T E D    A T :     X: "+xTemp+"   Y:  "+yTemp);
+					int temp [] = new int[2];
+					temp[0] = xTemp;
+					temp[1] = yTemp;
+					return temp;
+				}
+				
+				increase = increase+0.1;
+			}
+			
+			return null;
+	}
+	
 }
+
+
 	
