@@ -36,16 +36,23 @@ public int[][] getOuterPoints(int[][] objectarray, int car_x, int car_y){
 	
 }
 
-//Returns the points where the car should drive to
+//Returns the points where the car could drive to
 
 public int[][] getNextPoint(){
 	int[][] avoidancepoints = getOuterPoints(objectarray,car_x,car_y);
 	//which value to add?
+	//1st point +2 or -2?
 	avoidancepoints[1][0]+2; 
-	avoidancepoints[0][0]+2;
+	avoidancepoints[0][0]-2;
 	return avoidancepoints;
+}
 
+//Chooses one point to drive to
 
+public void changePath(){
+	int[][] avPoints = getNextPoint();
+	car_x = avPoints[1][0];
+	car_y = avPoints[1][1];
 }
 
 public boolean isSpecialCase(int collisionpoint_X, int collisionpoint_Y, int[][] objectarray){
