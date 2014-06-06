@@ -43,7 +43,7 @@ public int[][] getNextPoint(){
 	//which value to add?
 	//1st point +2 or -2?
 	avoidancepoints[1][0]+2; 
-	avoidancepoints[0][0]-2;
+	avoidancepoints[1][1]+2;
 	return avoidancepoints;
 }
 
@@ -55,11 +55,5 @@ public void changePath(){
 	car_y = avPoints[1][1];
 }
 
-public boolean isSpecialCase(int collisionpoint_X, int collisionpoint_Y, int[][] objectarray){
-	for(int i = 0; i < objectarray.length;i++){
-		
-	}
-	return false;
-}
 
 }
