@@ -18,7 +18,7 @@ obectarray [0] [1] = 7
 public int[][] getOuterPoints(int[][] objectarray, int car_x, int car_y){
 	
 	//First outer point at max_value [0] [z], second outer point at max_value [1] [z] with z = 0 for x_value or 1 for y_value 
-	int max_value [][]= new max_value [2] [2];
+	int max_value [][]= new int [2] [2];
 	// looking for the greatest y_value
 	for(int i = 1; i < objectarray.length; i ++){
 		if(int [i-1][1] < int [i] [1]){
@@ -41,9 +41,9 @@ public int[][] getOuterPoints(int[][] objectarray, int car_x, int car_y){
 public int[][] getNextPoint(){
 	int[][] avoidancepoints = getOuterPoints(objectarray,car_x,car_y);
 	//which value to add?
-	//1st point +2 or -2?
-	avoidancepoints[0][1]+2; 
-	avoidancepoints[1][1]-2;
+	//1st point +2 or -2 or 2nd point?
+	avoidancepoints[0][1]+=2; 
+	avoidancepoints[1][1]-=2;
 	return avoidancepoints;
 }
 
