@@ -17,66 +17,50 @@ obectarray [0] [1] = 7
 //A better idea is maybe to calculate it with sin and cos.
 //compass_input noch nicht vorhanden!
 public static int[][] getOuterPoints(int[][] objectarray, int compass_input) {
-		int angle = 45;
-		int[][] outerPoints = new int[5][2];
-		for(int n =0; n < outerPoints.length; n++){
-			outerPoints[n][0] = 100000;
-			outerPoints[n][1] = 100000;
-		}
-		int[][] result;
-		int j = 0;
-		int m = 0;
-		int min_x = 100000;
-		int min_y = 100000;
-		int max_x = 100000;
-		int max_y = 100000;
-		int rel_x;
-		// case 1
-		if (angle > 0 && angle < 90) {
-
-			for (int i = 1; i < objectarray.length; i++) {
-				if (objectarray[i - 1] == null) {
-					System.out.println("break");
-					break;
-				}
-				if (objectarray[i - 1][1] < objectarray[i][1]
-						&& objectarray[i - 1][1] <= min_y) {
-					System.out.println("if1");
-					min_y = objectarray[i - 1][1];
-					rel_x = objectarray[i - 1][0];
-					if (min_y < outerPoints[j][1]) {
-						System.out.println("if2");
-						outerPoints[j][1] = min_y;
-						outerPoints[j][0] = rel_x;
-						j++;
-					} else if (min_y == outerPoints[j][1]) {
-						System.out.println("else if1");
-						outerPoints[j][1] = min_y;
-						outerPoints[j][0] = rel_x;
-						j++;
-					}
-				} else if (objectarray[i - 1][1] > objectarray[i][1]
-						&& objectarray[i][1] <= min_y) {
-					System.out.println("else if 2");
-					min_y = objectarray[i][1];
-					rel_x = objectarray[i][0];
-					if (min_y < outerPoints[j][1]) {
-						System.out.println("if3");
-						outerPoints[j][1] = min_y;
-						outerPoints[j][1] = rel_x;
-						j++;
-					} else if (min_y == outerPoints[j][1]) {
-						System.out.println("else if 3");
-						outerPoints[j][1] = min_y;
-						outerPoints[j][0] = rel_x;
-						j++;
-					}
-				}
-			}
-
-		}
-
+		int[][] outerPoints = new int[1][2];
 		return outerPoints;
+	}
+
+	public static int getMax_x(int[][] objectarray) {
+		int max_x = 0;
+		int rel_y;
+		for (int i = 0; i < objectarray.length; i++) {
+			if (objectarray[i][0] > max_x) {
+				max_x = objectarray[i][0];
+				rel_y = objectarray[i][1];
+			}
+		}
+		return max_x;
+	}
+
+	public static int getMax_y(int[][] objectarray) {
+		int max_y = 0;
+		for (int i = 0; i < objectarray.length; i++) {
+			if (objectarray[i][1] > max_y) {
+				max_y = objectarray[i][1];
+			}
+		}
+		return max_y;
+	}
+
+	public static int getMin_x(int[][] objectarray) {
+		int min_x = 9999;
+		for (int i = 0; i < objectarray.length; i++) {
+			if (objectarray[i][0] < min_x) {
+				min_x = objectarray[i][0];
+			}
+		}
+		return min_x;
+	}
+	
+	public static int getMin_y(int[] [] objectarray){
+		int min_y = 9999;
+		for (int i = 0; i < objectarray.length; i++){
+			if (objectarray[i][1] < min_y){
+				min_y = objectarray[i][1];
+			}
+		}
+		return min_y;
 	}
 //Returns the points where the car could drive to
 
