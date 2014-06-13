@@ -18,6 +18,80 @@ obectarray [0] [1] = 7
 //compass_input noch nicht vorhanden!
 public static int[][] getOuterPoints(int[][] objectarray, int compass_input) {
 		int[][] outerPoints = new int[1][2];
+		int angle = angleCheck(compass_input);
+		// case 1 >0 to <90 degrees
+		if (angle > 0 && angle < 90) {
+			// first point
+			outerPoints[0][0] = miny_maxx[0][0];
+			outerPoints[0][1] = miny_maxx[0][1];
+			// other point
+			outerPoints[1][0] = maxy_minx[1][0];
+			outerPoints[1][1] = maxy_minx[1][1];
+		}
+		// case 2 >90 to <180 degrees
+		else if (angle > 90 && angle < 180) {
+			// first point
+			outerPoints[0][0] = maxy_maxx[0][0];
+			outerPoints[0][1] = maxy_maxx[0][1];
+			// other point
+			outerPoints[1][0] = miny_minx[1][0];
+			outerPoints[1][1] = miny_minx[1][1];
+		}
+		// case 3 <0 to >-90 degrees
+		else if (angle < 0 && angle > (-90)) {
+			// first point
+			outerPoints[0][0] = maxy_minx[0][0];
+			outerPoints[0][1] = maxy_minx[0][1];
+			// other point
+			outerPoints[1][0] = miny_maxx[1][0];
+			outerPoints[1][1] = miny_maxx[1][1];
+		}
+		// case 4 <-90 to >-180 degrees
+		else if (angle < (-90) && angle > (-180)) {
+			// first point
+			outerPoints[0][0] = maxy_maxx[0][0];
+			outerPoints[0][1] = maxy_maxx[0][1];
+			// other point
+			outerPoints[1][0] = miny_minx[1][0];
+			outerPoints[1][1] = miny_minx[1][1];
+		}
+		// case 5 0 degrees
+		else if (angle == 0) {
+			// first point
+			outerPoints[0][0] = miny_minx[0][0];
+			outerPoints[0][1] = miny_minx[0][1];
+			// other point
+			outerPoints[1][0] = miny_maxx[1][0];
+			outerPoints[1][1] = miny_maxx[1][1];
+		}
+		// case 6 90 degrees
+		else if (angle == 90) {
+			// first point
+			outerPoints[0][0] = miny_minx[0][0];
+			outerPoints[0][1] = miny_minx[0][1];
+			// other point
+			outerPoints[1][0] = maxy_minx[1][0];
+			outerPoints[1][1] = maxy_minx[1][1];
+		}
+		// case 7 +-180 degrees
+		else if (angle == 180 || angle == (-180)) {
+			// first point
+			outerPoints[0][0] = maxy_minx[0][0];
+			outerPoints[0][1] = maxy_minx[0][1];
+			// other point
+			outerPoints[1][0] = maxy_maxx[1][0];
+			outerPoints[1][1] = maxy_maxx[1][1];
+		}
+		// case 8 -90 degrees
+		else if (angle == (-90)) {
+			// first point
+			outerPoints[0][0] = miny_maxx[0][0];
+			outerPoints[0][1] = miny_maxx[0][1];
+			// other point
+			outerPoints[1][0] = maxy_maxx[1][0];
+			outerPoints[1][1] = maxy_maxx[1][1];
+		}
+
 		return outerPoints;
 	}
 
