@@ -11,23 +11,36 @@ public class Test {
 	static final double speed = 0.3;
 	final double hypotenuse = 40;
 	
-	public static double[][][] positive_vortex_map = new double[180][1000][]; // Map with temporary vortex information about an object (180 degrees, one thousand vortexes for each degree, two coordinates for each vortex)
-	public static double[][][] negative_vortex_map = new double[180][1000][]; // All degrees that are between 0 and -180 
+	public static double[][][] positive_vortex_map = new double[180][10000][]; // Map with temporary vortex information about an object (180 degrees, one thousand vortexes for each degree, two coordinates for each vortex)
+	public static double[][][] negative_vortex_map = new double[180][10000][]; // All degrees that are between 0 and -180 
 	public static int[][] occupation_list = new int [1000000][];
 	public static boolean[][] occupation_map = new boolean [1000][1000]; // IMPORTANT: [x-value][y-value] box size 5cm ATM; MOST IMPORTANT: point 0/0 is at array position [499][499];
 	
 
 	public static void main(String[] args){
 			
-		Test run = new Test();		
+		Test run = new Test();	
+		
+		
 	
+		
 		int count = 0;
 		
-		for(int i = 179; i > -180; i--){
-			double x = Math.random();
-			count++;
-			run.mapVortex(i, (count * 2.0 * x));
-		}
+	//	for(int i = 179; i > -180; i--){
+	//		double x = Math.random();
+	//		count++;
+	//		run.mapVortex(i, (count * 2.0 * x));
+	//	}
+		
+
+		run.occupation_list[0] = new int[2];
+		run.occupation_list[1] = new int[2];
+		run.occupation_list[0][0] = 308;
+		run.occupation_list[0][1] = 700;
+		run.occupation_list[1][0] = 300;
+		run.occupation_list[1][1] = 700;
+		
+		
 		
 		run.occupy_Map();
 		
@@ -41,11 +54,11 @@ public class Test {
 		}	
 		
 		System.out.println(run.detect_collision(0,0,50,50));
-		System.out.println(run.detect_collision(0,0,150,150));
-		System.out.println(run.detect_collision(0,0,250,250));
+		System.out.println(run.detect_collision(0,0,120,180));
+		System.out.println(run.detect_collision(0,0,250,251));
 		System.out.println(run.detect_collision(0,0,350,350));
 		System.out.println(run.detect_collision(-400,-400,290,300));
-				
+			
 	}
 	
 	
@@ -121,7 +134,6 @@ public class Test {
 			int xo = occupation_list[outer][0];
 			int yo = occupation_list[outer][1];
 			int inner = 0;
-			outer++;
 			
 			System.out.println(outer);
 			
@@ -130,14 +142,15 @@ public class Test {
 				int xi = occupation_list[inner][0];
 				int yi = occupation_list[inner][1];
 				
-				if ( (get_hypotenuse(xo,yo,xi,yi)*5) < hypotenuse){	
+				if ( (get_hypotenuse(xo,yo,xi,yi)*5) <= hypotenuse){	
 					if(print)
 					 	System.out.println("\n\nX0: "+xo+" Y0: "+yo+" X1: "+xi+" Y1: "+yi);
-					help_build_Obstacle(get_angle(xo,yo,xi,yi)-90 , get_hypotenuse(xo,yo,xi,yi) , xi , yi ,   print);		
+					help_build_Obstacle(get_angle(xo,yo,xi,yi) , get_hypotenuse(xo,yo,xi,yi) , xo , yo ,   print);		
 				}
 				inner++;						
 			}
 			print = false;
+			outer++;
 		}
 		
 	}
@@ -287,7 +300,7 @@ public class Test {
 		
 		double togo_x = target_x - source_x;
 		double togo_y = target_y - source_y;
-		
+
 		double hypotenuse = Math.sqrt((togo_x * togo_x) + (togo_y * togo_y));
 		
 		return hypotenuse;
@@ -295,9 +308,21 @@ public class Test {
 	
 	public double get_angle(double source_x, double source_y, double target_x, double target_y){
 		
+
+		double togo_x = target_x - source_x;
 		double togo_y = target_y - source_y;
 		
-		double angle = Math.round(Math.toDegrees(Math.asin(togo_y/get_hypotenuse(source_x,source_y,target_x,target_y))));
+		double angle = Math.round(Math.toDegrees(Math.asin(togo_x/get_hypotenuse(source_x,source_y,target_x,target_y))));
+		
+		if(togo_x < 0){
+			if(togo_y < 0){
+				angle = angle - 90;
+			}
+		}else{
+			if(togo_y < 0){
+				angle = angle + 90;
+			}
+		}
 		
 		return angle;
 	}
@@ -339,6 +364,7 @@ public class Test {
 			
 			return null;
 	}
+
 	
 }
 
