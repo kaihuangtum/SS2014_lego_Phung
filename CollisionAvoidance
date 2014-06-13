@@ -16,78 +16,68 @@ obectarray [0] [1] = 7
 
 //A better idea is maybe to calculate it with sin and cos.
 //compass_input noch nicht vorhanden!
-public int[][] getOuterPoints(int[][] objectarray, int compass_input){
-	int angle = angleCheck(compass_input);
-	int [][] outerPoints;
-	int [][] result;
-	int j = 0;
-	int m = 0;
-	int min_x = 100000;
-	int min_y = 100000;
-	int max_x = 100000;
-	int max_y = 100000;
-	int rel_x;
-	//case 1
-	if(angle > 0 && angle < 90){
-		for(int i = 1; i < objectarray.length; i++){
-			while(objectarray[i][0] != null && objectarray[i][1] != null){
-				if(objectarray [i-1][1] < objectarray [i] [1] &&  objectarray [i-1][1] <= min_y){	
-					min_y = objectarray[i-1][1];
-					rel_x = objectarray[i-1][0];
-					if ( min_y < outerPoints[j][1]){
+public static int[][] getOuterPoints(int[][] objectarray, int compass_input) {
+		int angle = 45;
+		int[][] outerPoints = new int[5][2];
+		for(int n =0; n < outerPoints.length; n++){
+			outerPoints[n][0] = 100000;
+			outerPoints[n][1] = 100000;
+		}
+		int[][] result;
+		int j = 0;
+		int m = 0;
+		int min_x = 100000;
+		int min_y = 100000;
+		int max_x = 100000;
+		int max_y = 100000;
+		int rel_x;
+		// case 1
+		if (angle > 0 && angle < 90) {
+
+			for (int i = 1; i < objectarray.length; i++) {
+				if (objectarray[i - 1] == null) {
+					System.out.println("break");
+					break;
+				}
+				if (objectarray[i - 1][1] < objectarray[i][1]
+						&& objectarray[i - 1][1] <= min_y) {
+					System.out.println("if1");
+					min_y = objectarray[i - 1][1];
+					rel_x = objectarray[i - 1][0];
+					if (min_y < outerPoints[j][1]) {
+						System.out.println("if2");
+						outerPoints[j][1] = min_y;
+						outerPoints[j][0] = rel_x;
+						j++;
+					} else if (min_y == outerPoints[j][1]) {
+						System.out.println("else if1");
+						outerPoints[j][1] = min_y;
+						outerPoints[j][0] = rel_x;
+						j++;
+					}
+				} else if (objectarray[i - 1][1] > objectarray[i][1]
+						&& objectarray[i][1] <= min_y) {
+					System.out.println("else if 2");
+					min_y = objectarray[i][1];
+					rel_x = objectarray[i][0];
+					if (min_y < outerPoints[j][1]) {
+						System.out.println("if3");
 						outerPoints[j][1] = min_y;
 						outerPoints[j][1] = rel_x;
-					}else if (min_y == outerPoints[j][1]){
 						j++;
+					} else if (min_y == outerPoints[j][1]) {
+						System.out.println("else if 3");
 						outerPoints[j][1] = min_y;
-						outerpoints[j][0] = rel_x;
-				}
-				else if(objectarray [i-1][1] > objectarray [i] [1]){
-					outerPoints[j][1] = objectarray[i][1];
-				}
-				j++;
-			}
-			if(outerPoints.length > 1){
-				for(int n=1;x<outerPoints.length; x++){
-					if(outerPoints[n-1][0] < outerPoints[n][0]){
-						result[m][0] = outerPoints[n][0];
+						outerPoints[j][0] = rel_x;
+						j++;
 					}
-					else
 				}
 			}
-			
-		}
-		
-		}
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	//First outer point at max_value [0] [z], second outer point at max_value [1] [z] with z = 0 for x_value or 1 for y_value 
-	int max_value [][]= new int [2] [2];
-	// looking for the greatest y_value
-	for(int i = 1; i < objectarray.length; i ++){
-		if(int [i-1][1] < int [i] [1]){
-			max_value [0] [0] = int [i] [0];
-			max_value [0] [1] = int [i] [1];
-		}
-		if(int [i-1] [0] < int [i] && int [i-1] [1] > int [i] [1]){
-			max_value [1] [0] = int [i] [0];
-			max_value [1] [1] = int [i] [1];
-		}
-		
-	}
-	
-	return max_value;
-	
-}
 
+		}
+
+		return outerPoints;
+	}
 //Returns the points where the car could drive to
 
 public int[][] getNextPoint(){
