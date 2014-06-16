@@ -14,17 +14,17 @@ size of the objectarray  n = "defined size", -> int objectarray [n] [2] (i.e. th
 obectarray [0] [1] = 7
 */
 
-	static int[][] objectarray = new int[1000][2];
+static int[][] objectarray = new int[1000][2];
 
 	public static void main(String[] args) {
 
 		for (int i = 0; i < objectarray.length; i++) {
-			objectarray[i][0] = (int) Math.random() * 10;
-			objectarray[i][1] = (int) Math.random() * 10;
+			objectarray[i][0] = 1+(int) Math.random() * 10;
+			objectarray[i][1] = 1+(int) Math.random() * 10;
 			objectarray[399][0] = 1;
 			objectarray[399][1] = 7;
-			objectarray[12][0] = 10;
-			objectarray[12][1] = 0;
+			objectarray[12][0] = 0;
+			objectarray[12][1] = 2999;
 			System.out.println(objectarray[i][0] + "/" + objectarray[i][1]
 					+ ";");
 		}
@@ -39,12 +39,11 @@ obectarray [0] [1] = 7
 			System.out.println("minmax" + temp3[i][0] + "+" + temp3[i][1]);
 			System.out.println("minmin" + temp4[i][0] + "+" + temp4[i][1]);
 		}
-		
-		int [][]test = getOuterPoints(objectarray, 88);
+
+		int[][] test = getOuterPoints(objectarray,180);
 		for (int i = 0; i < test.length; i++) {
-			System.out.println( test[i] [0]+"/"+test[i][1] + ";");
+			System.out.println(test[i][0] + "/" + test[i][1] + ";");
 		}
-		
 
 	}
 
@@ -140,95 +139,97 @@ obectarray [0] [1] = 7
 		return result;
 	}
 
-		//minx_miny
+	// minx_miny
 	public static int[][] getMinx_Miny(int[][] objectarray) {
-	int[][] result = new int[1][2];
-	int min_y = 9999;
-	int min_x = 9999;
-	for (int i = 0; i < objectarray.length; i++) {
-		if (min_x == objectarray[i][0]) {
-			if (objectarray[i][1] < min_y) {
+		int[][] result = new int[1][2];
+		int min_y = 9999;
+		int min_x = 9999;
+		for (int i = 0; i < objectarray.length; i++) {
+			if (min_x == objectarray[i][0]) {
+				if (objectarray[i][1] < min_y) {
+					min_y = objectarray[i][1];
+					result[0][0] = min_x;
+					result[0][1] = min_y;
+				}
+			}
+			if (objectarray[i][0] < min_x) {
+				min_x = objectarray[i][0];
 				min_y = objectarray[i][1];
 				result[0][0] = min_x;
 				result[0][1] = min_y;
 			}
 		}
-		if (objectarray[i][0] < min_x) {
-			min_x = objectarray[i][0];
-			min_y = objectarray[i][1];
-			result[0][0] = min_x;
-			result[0][1] = min_y;
-		}
+		return result;
 	}
-	return result;
-}
-	//minx_maxy
-	public static int[][] getMinx_Maxy(int[][] objectarray) {
-	int[][] result = new int[1][2];
-	int max_y = 0;
-	int min_x = 9999;
-	for (int i = 0; i < objectarray.length; i++) {
-		if (min_x == objectarray[i][0]) {
-			if (objectarray[i][1] > max_y) {
-				max_y = objectarray[i][1];
-				result[0][0] = min_x;
-				result[0][1] = max_y;
-			}
-		}
-		if (objectarray[i][0] < min_x) {
-			min_x = objectarray[i][0];
-			max_y = objectarray[i][1];
-			result[0][0] = min_x;
-			result[0][1] = max_y;
-		}
-	}
-	return result;
-}
-	//maxx_miny
-	public static int[][] getMaxx_Miny(int[][] objectarray) {
-	int[][] result = new int[1][2];
-	int max_x = 0;
-	int min_y = 9999;
-	for (int i = 0; i < objectarray.length; i++) {
-		if (max_x == objectarray[i][0]) {
-			if (objectarray[i][1] < min_y) {
-				min_y = objectarray[i][1];
-				result[0][0] = max_x;
-				result[0][1] = min_y;
-			}
-		}
-		if (objectarray[i][0] > max_x) {
-			max_x = objectarray[i][0];
-			min_y = objectarray[i][1];
-			result[0][0] = max_x;
-			result[0][1] = min_y;
-		}
-	}
-	return result;
-}
 
-	//maxx_maxy
+	// minx_maxy
+	public static int[][] getMinx_Maxy(int[][] objectarray) {
+		int[][] result = new int[1][2];
+		int max_y = 0;
+		int min_x = 9999;
+		for (int i = 0; i < objectarray.length; i++) {
+			if (min_x == objectarray[i][0]) {
+				if (objectarray[i][1] > max_y) {
+					max_y = objectarray[i][1];
+					result[0][0] = min_x;
+					result[0][1] = max_y;
+				}
+			}
+			if (objectarray[i][0] < min_x) {
+				min_x = objectarray[i][0];
+				max_y = objectarray[i][1];
+				result[0][0] = min_x;
+				result[0][1] = max_y;
+			}
+		}
+		return result;
+	}
+
+	// maxx_miny
+	public static int[][] getMaxx_Miny(int[][] objectarray) {
+		int[][] result = new int[1][2];
+		int max_x = 0;
+		int min_y = 9999;
+		for (int i = 0; i < objectarray.length; i++) {
+			if (max_x == objectarray[i][0]) {
+				if (objectarray[i][1] < min_y) {
+					min_y = objectarray[i][1];
+					result[0][0] = max_x;
+					result[0][1] = min_y;
+				}
+			}
+			if (objectarray[i][0] > max_x) {
+				max_x = objectarray[i][0];
+				min_y = objectarray[i][1];
+				result[0][0] = max_x;
+				result[0][1] = min_y;
+			}
+		}
+		return result;
+	}
+
+	// maxx_maxy
 	public static int[][] getMaxx_Maxy(int[][] objectarray) {
-	int[][] result = new int[1][2];
-	int max_x = 0;
-	int max_y = 0;
-	for (int i = 0; i < objectarray.length; i++) {
-		if (max_x == objectarray[i][0]) {
-			if (objectarray[i][1] > max_y) {
+		int[][] result = new int[1][2];
+		int max_x = 0;
+		int max_y = 0;
+		for (int i = 0; i < objectarray.length; i++) {
+			if (max_x == objectarray[i][0]) {
+				if (objectarray[i][1] > max_y) {
+					max_y = objectarray[i][1];
+					result[0][0] = max_x;
+					result[0][1] = max_y;
+				}
+			}
+			if (objectarray[i][0] > max_x) {
+				max_x = objectarray[i][0];
 				max_y = objectarray[i][1];
 				result[0][0] = max_x;
 				result[0][1] = max_y;
 			}
 		}
-		if (objectarray[i][0] > max_x) {
-			max_x = objectarray[i][0];
-			max_y = objectarray[i][1];
-			result[0][0] = max_x;
-			result[0][1] = max_y;
-		}
+		return result;
 	}
-	return result;
-}
 
 	public static int[][] getOuterPoints(int[][] objectarray, int compass_input) {
 		int[][] outerPoints = new int[2][2];
@@ -236,13 +237,21 @@ obectarray [0] [1] = 7
 		int[][] Max_Min = null;
 		int[][] Max_Max = null;
 		int[][] Min_Min = null;
+		int[][] MinX_MinY = null;
+		int[][] MaxX_MinY = null;
+		int[][] MinX_MaxY = null;
+		int[][] MaxX_MaxY = null;
 
 		Min_Min = getMin_Min(objectarray);
 		Max_Max = getMax_Max(objectarray);
 		Min_Max = getMin_Max(objectarray);
 		Max_Min = getMax_Min(objectarray);
+		MinX_MinY = getMinx_Miny(objectarray);
+		MaxX_MinY = getMaxx_Miny(objectarray);
+		MinX_MaxY = getMinx_Maxy(objectarray);
+		MaxX_MaxY = getMaxx_Maxy(objectarray);
 
-		int angle = 45; // angleCheck(compass_input);
+		int angle = compass_input; // angleCheck(compass_input);
 		// case 1 >0 to <90 degrees
 		if (angle > 0 && angle < 90) {
 			// first point
@@ -274,9 +283,9 @@ obectarray [0] [1] = 7
 		}
 		// case 5 0 degrees
 		else if (angle == 0) {
-			System.arraycopy(Min_Min, 0, outerPoints, 0, Min_Min.length);
-			System.arraycopy(Min_Max, 0, outerPoints, Min_Min.length,
-					Min_Max.length);
+			System.arraycopy(MinX_MinY, 0, outerPoints, 0, MinX_MinY.length);
+			System.arraycopy(MaxX_MinY, 0, outerPoints, MinX_MinY.length,
+					MaxX_MinY.length);
 
 		}
 		// case 6 90 degrees
@@ -287,9 +296,9 @@ obectarray [0] [1] = 7
 		}
 		// case 7 +-180 degrees
 		else if (angle == 180 || angle == (-180)) {
-			System.arraycopy(Max_Min, 0, outerPoints, 0, Max_Min.length);
-			System.arraycopy(Max_Max, 0, outerPoints, Max_Min.length,
-					Max_Max.length);
+			System.arraycopy(MinX_MaxY, 0, outerPoints, 0, MinX_MaxY.length);
+			System.arraycopy(MaxX_MaxY, 0, outerPoints, MinX_MaxY.length,
+					MaxX_MaxY.length);
 		}
 		// case 8 -90 degrees
 		else if (angle == (-90)) {
@@ -297,10 +306,8 @@ obectarray [0] [1] = 7
 			System.arraycopy(Max_Max, 0, outerPoints, Min_Max.length,
 					Max_Max.length);
 		}
-
 		return outerPoints;
 	}
-
 }
 
 //Returns the points where the car could drive to
