@@ -1,26 +1,40 @@
-/* Wir betrachten zwei Fälle
+package OuterPoints;
 
-1. Fall Kollisionsdaten von Jens <- Objekt abgeschnitten. 
-Falls Kollisionspunkt kleiner als Eckpunkte
-	
-2. Falls Kollisionspunkt größer als Eckpunkte 
-*/
+import Navigation.Navigations;
 
-package Test // from Jens code
+public class Test {
 
-public class CollisionAvoidance {
-/* This function gets the outer points of the objects. We receive an array with the coordinate of the object which can be seen by the car.
-size of the objectarray  n = "defined size", -> int objectarray [n] [2] (i.e. the coordinate (4/7) in objectarray [0] -> objectarray [0] [0] = 4,
-obectarray [0] [1] = 7
-*/
+	static int[][] objectarray = new int[1000][2];
+	static double newTarget1_x;
+	static double newTarget1_y;
+	static double newTarget2_x;
+	static double newTarget2_y;
 
-static int[][] objectarray = new int[1000][2];
+	static double tempGoal_x;
+	static double tempGoal_y;
+
+	// Getter
+	public static double getXofTarget1() {
+		return newTarget1_x;
+	}
+
+	public static double getYofTarget1() {
+		return newTarget1_y;
+	}
+
+	public static double getXofTarget2() {
+		return newTarget2_x;
+	}
+
+	public static double getYofTarget2() {
+		return newTarget2_y;
+	}
 
 	public static void main(String[] args) {
 
 		for (int i = 0; i < objectarray.length; i++) {
-			objectarray[i][0] = 1+(int) Math.random() * 10;
-			objectarray[i][1] = 1+(int) Math.random() * 10;
+			objectarray[i][0] = 1 + (int) Math.random() * 10;
+			objectarray[i][1] = 1 + (int) Math.random() * 10;
 			objectarray[399][0] = 1;
 			objectarray[399][1] = 7;
 			objectarray[12][0] = 0;
@@ -40,7 +54,7 @@ static int[][] objectarray = new int[1000][2];
 			System.out.println("minmin" + temp4[i][0] + "+" + temp4[i][1]);
 		}
 
-		int[][] test = getOuterPoints(objectarray,180);
+		int[][] test = getOuterPoints(objectarray, 180);
 		for (int i = 0; i < test.length; i++) {
 			System.out.println(test[i][0] + "/" + test[i][1] + ";");
 		}
@@ -308,26 +322,34 @@ static int[][] objectarray = new int[1000][2];
 		}
 		return outerPoints;
 	}
-}
 
-//Returns the points where the car could drive to
+	public static void getNewTarget(int[][] outerPoints) {
 
-public int[][] getNextPoint(){
-	int[][] avoidancepoints = getOuterPoints(objectarray,car_x,car_y);
-	//which value to add?
-	//1st point +2 or -2 or 2nd point?
-	avoidancepoints[0][1]+=2; 
-	avoidancepoints[1][1]-=2;
-	return avoidancepoints;
-}
+		try {
+			int point1_x = outerPoints[0][0];
+			int point1_y = outerPoints[0][1];
+			int point2_x = outerPoints[1][0];
+			int point2_y = outerPoints[1][1];
 
-//Chooses one point to drive to
+			newTarget1_x = (double) point1_x * 5;
+			newTarget1_y = (double) point1_y * 5;
 
-public void changePath(){
-	int[][] avPoints = getNextPoint();
-	car_x = avPoints[1][0];
-	car_y = avPoints[1][1];
-}
+			newTarget2_x = (double) point2_x * 5;
+			newTarget2_y = (double) point2_y * 5;
 
+		} catch (Exception e) {
+		}
+		double hypo1 = Navigations.get_hypotenuse(Navigations.getCar_X(),
+				Navigations.getCar_Y(), newTarget1_x, newTarget1_y);
+		double hypo2 = Navigations.get_hypotenuse(Navigations.getCar_X(),
+				Navigations.getCar_Y(), newTarget2_x, newTarget2_y);
 
+		if (hypo1 < hypo2) {
+			tempGoal_x = newTarget2_x + 5;
+			tempGoal_y = newTarget2_y - 5;
+		} else {
+			tempGoal_x = newTarget1_x - 5;
+			tempGoal_y = newTarget1_y + 5;
+		}
+	}
 }
