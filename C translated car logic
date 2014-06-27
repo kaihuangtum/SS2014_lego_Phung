@@ -1,0 +1,326 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <math.h>
+#include <conio.h>
+#include <C:\Users\Admin\Desktop\Codeblocks\Lego Praktikum\workinghead.h>
+
+#define speed 0.3
+#define safety_distance 40
+#define PI 3.14159265
+
+    double car_x = 0;
+	double car_y = 0;
+	double car_angle = 0;
+	double target_x = 0;
+	double target_y = 0;
+
+    int occupation_list[268][2];
+    bool occupation_map[1000][1000];
+    double scan_values[268];
+    double vortex_map[268][2];
+
+
+
+
+
+int main()
+{
+
+
+    printf("Hello world!\n");
+    int i;
+
+   // angleCheck(1282.73);
+
+    for(i=0; i<=80; i++){
+        scan_values[i]= i+320;
+    }
+
+
+    for(i; i<=267; i++){
+        scan_values[i]= -1;
+    }
+
+
+    mapVortex();
+
+    fill_Map();
+
+  /*  for(i=0; i<(sizeof(vortex_map)/sizeof(scan_values[0])); i++){
+        if(occupation_list[i][0]!= 0 || occupation_list[i][1] != 0){
+        printf("(%d |",occupation_list[i][0]);
+        printf(" %d)\n",occupation_list[i][1]);
+        }
+    }*/
+
+    int j;
+    int count = 0;
+        for(i=0; i<1000; i++){
+            for(j=0; j<1000; j++){
+                if(occupation_map[i][j]){
+                    printf("MAP %d: (%d | %d)\n",count,i,j);
+                    count++;
+            }
+        }
+    }
+
+
+
+  /*vortex_map[0][0] =  0.01 ;
+  vortex_map[0][1] =  0.01 ;
+  vortex_map[1][0] =  10  ;
+  vortex_map[1][1] =  10  ;
+  vortex_map[2][0] =  30 ;
+  vortex_map[2][1] =  30  ;
+
+  occupation_list[0][0] =  0 ;
+  occupation_list[0][1] =  0 ;
+  occupation_list[1][0] =  3;
+  occupation_list[1][1] =  0 ;
+  occupation_list[2][0] =  10001 ;
+  occupation_list[2][1] =  -10001 ;
+*/
+
+
+
+
+
+
+
+    return 0;
+}
+
+
+
+void mapVortex(){
+
+    int degree;
+    int irDistance;
+    int size = sizeof(scan_values)/sizeof(scan_values[0]);
+
+    printf("SIZEIEHIE: %d\n\n", size);
+
+    for(degree = 0; degree < size; degree++){
+		irDistance = scan_values[degree];
+
+        if(irDistance > -1){
+
+            vortex_map[degree][0] = getX(degree-(size/2),irDistance,car_x);
+            vortex_map[degree][1] = getY(degree-(size/2),irDistance,car_y);
+
+        }else{
+            vortex_map[degree][0] = 10001 ;
+            vortex_map[degree][1] = -10001;
+        }
+    }
+}
+
+
+void fill_Map(){
+
+    int size = sizeof(vortex_map)/sizeof(vortex_map[0]);
+    int i;
+    for(i = 0; i < size; i++){
+
+        if(vortex_map[i][0] != 10001 && vortex_map[i][1] != -10001){
+
+            int x = (int) (vortex_map[i][0]/5)+499;
+            int y = (int) (vortex_map[i][1]/5)+499;
+
+            occupation_list[i][0] = x;
+            occupation_list[i][1] = y;
+
+            occupation_map[x][y] = true;
+            printf("True at %d (%d|%d)\n",i,x,y);
+        }else{
+            occupation_list[i][0] = 10001;
+            occupation_list[i][1] = -10001;
+        }
+    }
+
+    build_Obstacle(); // Important function call!
+}
+
+void build_Obstacle(){
+
+		int counter = 0;
+		bool print = true;
+		int size = sizeof(occupation_list)/sizeof(occupation_list[0]);
+//		printf("OOCCU SIZE = %d \n",size);
+
+		while(counter < size-1){
+
+			int x1 = occupation_list[counter][0];
+			int y1 = occupation_list[counter][1];
+            int x2 = occupation_list[counter+1][0];
+            int y2 = occupation_list[counter+1][1];
+
+            if( x2 == 10001 && y2 == -10001){
+                printf("\n\n\n BREAK DETECTED \n\n\n");
+                break;
+            }
+
+            if ( (get_hypotenuse(x1,y1,x2,y2)*5) <= safety_distance && (get_hypotenuse(x1,y1,x2,y2)*5) > 0 ){
+                if(print){
+                    //  printf("%d: (%f|%f)   %d: (%f|%f)",outer,xo,yo,inner,xi,yi);
+                    help_build_Obstacle(get_angle(x1,y1,x2,y2) , get_hypotenuse(x1,y1,x2,y2) , x1 , y1 ,   print);
+                }
+            }
+			//print = false;
+			counter++;
+		}
+
+	}
+
+
+void help_build_Obstacle(double angle, double distance, double x, double y,    bool print){
+
+		if(print)
+	//	printf("\nNEW CALL!\n");
+
+
+		while(distance > 0){
+
+			int xTemp = (int)getX(angle,distance,x);
+			int yTemp = (int)getY(angle,distance,y);
+
+			if(occupation_map[xTemp][yTemp] == false){
+				occupation_map[xTemp][yTemp] = true;
+                    if(print){
+         //               printf(" SET TRUE AT: (%d|%d)     x1: %f  y1: %f \n",xTemp,yTemp,x,y);
+                    }
+                    if(print){
+		//			    printf("Angle: %f  Hypo: %f \n",angle,distance);
+                    }
+				}else
+					if(print)
+				//	printf("NO ");
+
+
+
+			distance = distance-0.1;
+		}
+}
+
+
+void map_movement(double angle_N, double distance){
+		/*
+		   angle_N takes following values: -180 to +180, where a negative value
+		   means that the car is turned towards west (left) from north, and a positive
+		   value that it is turned east (right) from north.
+
+		   distance is given in meters
+		*/
+
+		angle_N = angleCheck(angle_N);
+
+		printf("Angle_N: %f \n",angle_N);
+
+		double add_y = distance * round(10000 * getCosinus(angle_N)) /10000;
+		double add_x = distance * round(10000 * getSinus(angle_N)) /10000;
+
+		printf("Current x: %f + %f \n",car_x,add_x);
+		printf("Current y: %f + %f \n",car_y,add_y);
+
+		car_x = car_x + add_x;
+		car_y = car_y + add_y;
+
+		printf("New x: %f \n",car_x);
+		printf("New y: %f \n",car_y);
+
+	}
+
+
+double getX(double degree, double irDistance, double source_x){
+
+		double x = 0;
+		degree = angleCheck(degree);
+		x = source_x + irDistance * round(10000 * getSinus(degree)) /10000;
+		return x;
+
+}
+
+
+double getY(double degree, double irDistance, double source_y){
+
+		double y = 0;
+		degree = angleCheck(degree);
+		y = source_y + irDistance * round(10000 * getCosinus(car_angle+degree)) /10000;
+		return y;
+
+}
+
+
+double get_hypotenuse(double source_x, double source_y, double target_x, double target_y){
+
+		double togo_x = target_x - source_x;
+		double togo_y = target_y - source_y;
+
+		double hypotenuse = sqrt((togo_x * togo_x) + (togo_y * togo_y));
+
+		//printf("\n\n get_hypotenuse:  %f",hypotenuse);
+
+		return hypotenuse;
+	}
+
+
+double get_angle(double source_x, double source_y, double target_x, double target_y){
+
+
+		double togo_x = target_x - source_x;
+		double togo_y = target_y - source_y;
+
+		if(get_hypotenuse(source_x,source_y,target_x,target_y) == 0){
+          //  printf("\n\n get_Angle:  0");
+            return 0;
+		}
+
+		double angle = round((asin(togo_y/get_hypotenuse(source_x,source_y,target_x,target_y))) * 180 / PI);
+
+		//printf("\n\n get_Angle:  %f",angle);
+
+		if(togo_x < 0){
+			if(togo_y < 0){
+				angle = angle - 90;
+			}
+		}else{
+			if(togo_y < 0){
+				angle = angle + 90;
+			}
+		}
+
+		return angle;
+}
+
+
+double angleCheck(double degree){ // Returns ANY given angle in degree between -180 and 180 (0 == North)
+
+
+        int temp1 = ((int)degree) % 360;
+        int temp3 = (int)degree;
+        double temp2 = (degree - temp3);
+        degree = temp1+temp2;
+
+
+		if(degree < -180){
+			degree = 360 + degree;
+		}
+		if(degree > 180){
+			degree = -360 + degree;
+		}
+		return degree;
+}
+
+
+double getSinus(double angleInDegrees) {
+
+        return sin(angleInDegrees * PI / 180);
+
+}
+
+
+double getCosinus(double angleInDegrees){
+
+        return cos(angleInDegrees * PI / 180);
+}
