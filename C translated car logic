@@ -48,6 +48,10 @@ int main()
 
     fill_Map();
 
+    detect_collision(0,0,13,54);
+
+    printf("POINTS (%d|%d)",collision_point[0],collision_point[1]);
+
 /*
     int j;
     int count = 0;
@@ -212,6 +216,7 @@ void detect_collision(int source_x, int source_y, int target_x, int target_y){
 			double hypotenuse = get_hypotenuse(source_x,source_y,target_x,target_y);
 			printf("Hypotenuse:  %f \n",hypotenuse);
 			double increase = 0;
+			bool notfound = true;
 
 			while(increase <= hypotenuse+0.1){
 
@@ -223,10 +228,16 @@ void detect_collision(int source_x, int source_y, int target_x, int target_y){
 					printf("\n\nC O L L I S I O N    D E T E C T E D    A T :     X: %d   Y:  %d \n\n",xTemp,yTemp);
 					collision_point[0] = xTemp;
 					collision_point[1] = yTemp;
+					notfound = false;
 					break;
 				}
 
 				increase = increase+0.1;
+			}
+			if(notfound){
+                    collision_point[0] = 10001;
+					collision_point[1] = (-10001);
+					printf("NOTFOUND\n\n");
 			}
 			printf("\nDetect_Collision done.\n");
 	}
