@@ -1,0 +1,313 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <stdbool.h>
+#include <time.h>
+
+//VARIABLES
+int take_this [1][1];
+double dist_togo;
+double speed = 30.6;
+double time_tillStop;
+bool move= false;
+double angle_toMove;
+
+
+//FUNCTION
+double calc_dist();
+double calc_time(double dist_togo);
+void choose_path();
+double get_hypothenuse();
+void securityDistance(int car_x, int car_y, int outpoints[2][2], int secure_target[2][2]);
+void movement();
+void angle(int car_x, int car_y, int outpoints[2][2]);
+
+
+int main()
+{
+    int car_x, car_y, main_goal_x, main_goal_y;
+    int secure_target[2][2];
+
+    car_x = 10;
+    car_y = 13;
+    int outpoints[2][2];
+
+    outpoints[1][0]= 7;
+    outpoints[1][1]= 12;
+
+    outpoints[0][0]= 9;
+    outpoints[0][1]= 18;
+    securityDistance(car_x, car_y, outpoints,secure_target);
+
+    main_goal_x = 3;
+    main_goal_y = 20;
+
+    int i,j;
+    for (i = 0; i < 50; ++i)
+    {
+        for (j=0; j < 50;++j)
+        {
+            if ((outpoints[0][0] == i && outpoints[0][1] == j)||(outpoints[1][0] == i && outpoints[1][1] == j))
+            {
+                printf("*");
+            }
+            if ((secure_target[0][0] == i && secure_target[0][1] == j)||(secure_target[1][0] == i && secure_target[1][1] == j))
+            {
+                printf("0");
+            }
+
+            else if (main_goal_x == i && main_goal_y == j)
+            {
+                printf("$");
+            }
+            else if (car_x==i && car_y == j)
+            {
+                printf("C");
+            }
+            else printf("-");
+        }
+        printf("\n");
+
+    }
+
+    choose_path(take_this, car_x, car_y, secure_target, main_goal_x, main_goal_y);
+
+    printf("Choose this: %d", take_this[0][0]);
+    printf("/ %d \n", take_this[0][1]);
+    printf("Preferred distance: %f \n: ", dist_togo);
+    printf("Degree: %f \n", angle_toMove);
+
+    return 0;
+}
+
+double get_hypothenuse(int target_x, int target_y, int source_x, int source_y)
+{
+    double a, b, c;
+    a =  pow((target_x - source_x),2);
+    b =  pow((target_y - source_y),2);
+    c = sqrt(a+b);
+    //printf("%f %f \n", a,b);
+    return c;
+}
+
+double calc_dist(int car_x, int car_y, int target_x, int target_y, int main_goal_x, int main_goal_y)
+{
+    double dist;
+    dist = get_hypothenuse(target_x,target_y,car_x,car_y) + get_hypothenuse(main_goal_x, main_goal_y, target_x, target_y);
+    return dist;
+}
+
+void choose_path(int take_this[1][2], int car_x, int car_y, int secure_target[2][2], int main_goal_x, int main_goal_y)
+{
+    bool LEFT;
+    double dist1, dist2;
+
+    int target_x1, target_y1, target_x2, target_y2;
+    target_x1 = secure_target [0][0];
+    target_y1 = secure_target [0][1];
+
+    target_x2 = secure_target [1][0];
+    target_y2 = secure_target [1][1];
+
+    dist1 = calc_dist(car_x, car_y, target_x1, target_y1, main_goal_x, main_goal_y);
+    dist2 = calc_dist(car_x, car_y, target_x2, target_y2, main_goal_x, main_goal_y);
+
+    printf("Distance 1: %f \n", dist1);
+    printf("Distance 2: %f \n", dist2);
+    LEFT = dist1< dist2;
+    if(LEFT)
+    {
+        printf("Test: \n");
+        dist_togo = dist1;
+        take_this[0][0] = target_x1;
+        take_this[0][1] = target_y1;
+        time_tillStop =calc_time(dist_togo);
+        angle(car_x,car_y,take_this);
+    }
+    else
+    {
+        printf("Test else: \n");
+        dist_togo = dist2;
+        take_this[0][0] = target_x2;
+        take_this[0][1] = target_y2;
+        time_tillStop =calc_time(dist_togo);
+        angle(car_x,car_y,take_this);
+    }
+
+}
+
+void securityDistance(int car_x, int car_y, int outpoints[2][2], int secure_target[2][2]) {
+        if (outpoints[0][1] < outpoints[1][1]) {
+            if (outpoints[0][0] < outpoints[1][0])
+            {
+                if(car_x >= outpoints[0][0] && car_x <= outpoints[1][0])
+                {
+                    secure_target[0][0]=outpoints[0][0]-5;
+                    secure_target[0][1]=outpoints[0][1];
+                    secure_target[1][0]=outpoints[1][0]+5;
+                    secure_target[1][1]=outpoints[1][1];
+                }
+            }
+            else {
+                if(car_x >= outpoints[1][0] && car_x <= outpoints[0][0])
+                {
+                    secure_target[0][0]=outpoints[0][0]+5;
+                    secure_target[0][1]=outpoints[0][1];
+                    secure_target[1][0]=outpoints[1][0]-5;
+                    secure_target[1][1]=outpoints[1][1];
+                }
+            }
+
+
+            if (car_x < outpoints[0][0] || car_x > outpoints[1][0])
+            {
+                secure_target[0][0]=outpoints[0][0];
+                secure_target[0][1]=outpoints[0][1] - 5;
+                secure_target[1][0]=outpoints[1][0];
+                secure_target[1][1]=outpoints[1][1] + 5;
+            }
+        }
+        else {
+            if (outpoints[0][0] < outpoints[1][0])
+            {
+                if(car_x >= outpoints[0][0] && car_x <= outpoints[1][0])
+                {
+                    secure_target[0][0]=outpoints[0][0]-5;
+                    secure_target[0][1]=outpoints[0][1];
+                    secure_target[1][0]=outpoints[1][0]+5;
+                    secure_target[1][1]=outpoints[1][1];
+                }
+            }
+            else {
+                if(car_x >= outpoints[1][0] && car_x <= outpoints[0][0])
+                {
+                    secure_target[0][0]=outpoints[0][0]+5;
+                    secure_target[0][1]=outpoints[0][1];
+                    secure_target[1][0]=outpoints[1][0]-5;
+                    secure_target[1][1]=outpoints[1][1];
+                }
+            }
+
+            if (car_x < outpoints[1][0] || car_x > outpoints[0][0])
+            {
+                secure_target[0][0]=outpoints[0][0];
+                secure_target[0][1]=outpoints[0][1] + 5;
+                secure_target[1][0]=outpoints[1][0];
+                secure_target[1][1]=outpoints[1][1] - 5;
+            }
+        }
+        /*if (outpoints[0][1] < outpoints[1][1]) {
+
+            if (car_y >= outpoints[0][1] && car_y <= outpoints[1][1])
+            {
+            //case left
+                if (car_x < outpoints[0][0] && car_x < outpoints[1][0])
+                {
+                    secure_target[0][0]=outpoints[0][0] - 1;
+                    secure_target[0][1]=outpoints[0][1] - 1;
+                    secure_target[1][0]=outpoints[1][0] - 1;
+                    secure_target[1][1]=outpoints[1][1] + 1;
+
+                }
+             //case right
+                else if (car_x > outpoints[0][0] && car_x > outpoints[1][0])
+                {
+                    secure_target[0][0]=outpoints[0][0] + 1;
+                    secure_target[0][1]=outpoints[0][1] - 1;
+                    secure_target[1][0]=outpoints[1][0] + 1;
+                    secure_target[1][1]=outpoints[1][1] + 1;
+
+                }
+            }
+            //case top
+            else if (car_y > outpoints[0][1])
+            {
+                secure_target[0][0]=outpoints[0][0];
+                secure_target[0][1]=outpoints[0][1] - 5;
+                secure_target[1][0]=outpoints[1][0];
+                secure_target[1][1]=outpoints[1][1] + 5;
+
+            }
+            //case bottom
+            else if (car_y < outpoints[1][1])
+            {
+                secure_target[0][0]=outpoints[0][0] + 1;
+                secure_target[0][1]=outpoints[0][1] + 1;
+                secure_target[1][0]=outpoints[1][0] - 1;
+                secure_target[1][1]=outpoints[1][1] - 1;
+            }
+        }
+        else {
+            if (car_y <= outpoints[0][1] && car_y >= outpoints[1][1])
+            {
+                //case left
+                if (car_x < outpoints[0][0] && car_x < outpoints[1][0])
+                {
+                        secure_target[0][0]=outpoints[0][0] - 1;
+                        secure_target[0][1]=outpoints[0][1] + 1;
+                        secure_target[1][0]=outpoints[1][0] - 1;
+                        secure_target[1][1]=outpoints[1][1] - 1;
+                }
+                //case right
+                else if (car_x > outpoints[0][0] && car_x > outpoints[1][0])
+                {
+                    secure_target[0][0]=outpoints[0][0] + 1;
+                    secure_target[0][1]=outpoints[0][1] + 1;
+                    secure_target[1][0]=outpoints[1][0] + 1;
+                    secure_target[1][1]=outpoints[1][1] - 1;
+                }
+
+            }
+            //case top
+            else if (car_y > outpoints[1][1])
+            {
+                secure_target[0][0]=outpoints[0][0];
+                secure_target[0][1]=outpoints[0][1] + 5;
+                secure_target[1][0]=outpoints[1][0];
+                secure_target[1][1]=outpoints[1][1] - 5;
+            }
+            //case bottom
+            else if (car_y < outpoints[1][1])
+            {
+                secure_target[0][0]=outpoints[0][0] - 1;
+                secure_target[0][1]=outpoints[0][1] - 1;
+                secure_target[1][0]=outpoints[1][0] + 1;
+                secure_target[1][1]=outpoints[1][1] - 1;
+            }
+
+        }*/
+}
+double calc_time(double dist_togo)
+{
+    double time;
+    time = (dist_togo / speed);
+    printf("Time before stop: %f\n", time);
+    return time;
+}
+
+void angle(int car_x, int car_y, int outpoints[1][2])
+{
+    double h = sqrt(pow(car_x-outpoints[0][0],2)+ pow(car_y-outpoints[0][1],2));
+    double c = sqrt(pow(car_y-outpoints[0][1],2));
+    if (car_y == outpoints[0][1])
+    {
+        if (car_x < outpoints[0][0])
+        {
+            angle_toMove = -90;
+        }
+
+        else
+        {
+            angle_toMove = 90;
+        }
+    }
+    else if (car_x == outpoints[0][0])
+    {
+        angle_toMove = 0;
+    }
+    else
+    {
+        angle_toMove = asin(c/h)*180/M_PI;
+    }
+}
+
