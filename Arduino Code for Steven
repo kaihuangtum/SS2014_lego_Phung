@@ -1,0 +1,706 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <math.h>
+#include <conio.h>
+
+#define speed 0.3
+#define safety_distance 40
+#define PI 3.14159265
+
+
+double car_x = 0;
+	double car_y = 0;
+	double car_angle = 0;
+	double car_target_x = 160;
+	double car_target_y = 163;
+
+    int occupation_list[268][2];
+    double vortex_map[268][2];
+    bool occupation_map[180][180];
+    double scan_values[268] = {50};
+    bool collision_array[180][180];
+    int objectarray [1000][2];
+
+    int * detect_collision(int source_x, int source_y, int target_x, int target_y);
+    int * detect_outer_points(int * collision_point);
+    void find_Contourn(int x, int y);
+    int * find_way_point(int * outerpoints);
+    double calc_dist(int target_x, int target_y);
+
+/**
+  * This sample is about how to implement a queue in c
+  *
+  * Type of item is int
+  * Add item to tail
+  * Get item from head
+  * Can get the size
+  * Can display all content
+  */
+/**
+ * The Node struct,
+ * contains item and the pointer that point to next node.
+ */
+typedef struct Node {
+    int item;
+    struct Node* next;
+} Node;
+/**
+ * The Queue struct, contains the pointers that
+ * point to first node and last node, the size of the Queue,
+ * and the function pointers.
+ */
+typedef struct Queue {
+    Node* head;
+    Node* tail;
+
+    void (*push) (struct Queue*, int); // add item to tail
+    // get item from head and remove it from queue
+    int (*pop) (struct Queue*);
+    // get item from head but keep it in queue
+    int (*peek) (struct Queue*);
+    // display all element in queue
+    void (*display) (struct Queue*);
+    // size of this queue
+    int size;
+} Queue;
+/**
+ * Push an item into queue, if this is the first item,
+ * both queue->head and queue->tail will point to it,
+ * otherwise the oldtail->next and tail will point to it.
+ */
+void push (Queue* queue, int item);
+/**
+ * Return and remove the first item.
+ */
+int pop (Queue* queue);
+/**
+ * Return but not remove the first item.
+ */
+int peek (Queue* queue);
+/**
+ * Show all items in queue.
+ */
+void display (Queue* queue);
+/**
+ * Create and initiate a Queue
+ */
+Queue createQueue ();
+
+    
+
+void setup()
+{
+
+}
+
+void loop()
+{
+mainloop();
+}
+
+int mainloop()
+{
+
+    mapVortex();
+
+    fill_Map();
+
+    int * temp = detect_collision(car_x,car_y,car_target_x,car_target_y);
+    if(temp == NULL){
+
+    }
+    else{
+
+        int temp1 = temp[0];
+        int temp2 = temp[1];
+
+        find_Contourn(temp1,temp2);
+
+        intToBoolMap();
+
+        int * collision_point;
+        collision_point = detect_collision(car_x,car_y,car_target_x,car_target_y);
+        int * res;
+
+        int res1;
+        int res2;
+        int res3;
+        int res4;
+
+        if(collision_point != NULL){
+            res = detect_outer_points(collision_point);
+            res1 = res[0];
+            res2 = res[1];
+            res3 = res[2];
+            res4 = res[3];
+        }
+
+        res[0] = res1;
+        res[1] = res2;
+        res[2] = res3;
+        res[3] = res4;
+
+        int * result = find_way_point(res);
+
+        int result1 = result[0];
+        int result2 = result[1];
+
+
+        if(result != NULL){
+
+        }
+
+        return 0;
+    }
+}
+
+
+
+void mapVortex(){
+
+    int degree;
+    int irDistance;
+    int size = sizeof(scan_values)/sizeof(scan_values[0]);
+
+
+
+    for(degree = 0; degree < size; degree++){
+		irDistance = scan_values[degree];
+
+        if(irDistance > -1){
+
+            vortex_map[degree][0] = getX(degree-(size/2),irDistance,car_x);
+            vortex_map[degree][1] = getY(degree-(size/2),irDistance,car_y);
+
+        }else{
+            vortex_map[degree][0] = 10001 ;
+            vortex_map[degree][1] = -10001;
+        }
+    }
+}
+
+
+void fill_Map(){
+
+    int size = sizeof(vortex_map)/sizeof(vortex_map[0]);
+    int i;
+    for(i = 0; i < size; i++){
+
+        if(vortex_map[i][0] != 10001 && vortex_map[i][1] != -10001){
+
+            int x = (int) (vortex_map[i][0]/10)+89;
+            int y = (int) (vortex_map[i][1]/10)+89;
+
+            occupation_list[i][0] = x;
+            occupation_list[i][1] = y;
+
+            occupation_map[x][y] = true;
+          
+        }else{
+            occupation_list[i][0] = 10001;
+            occupation_list[i][1] = -10001;
+        }
+    }
+
+    build_Obstacle(); // Important function call!
+}
+
+void build_Obstacle(){
+
+	    int counter = 0;
+	    bool print = true;
+	    int size = sizeof(occupation_list)/sizeof(occupation_list[0]);
+
+	    while(counter < size-1){
+		int x1 = occupation_list[counter][0];
+		int y1 = occupation_list[counter][1];
+                int x2 = occupation_list[counter+1][0];
+                int y2 = occupation_list[counter+1][1];
+
+            if( x2 == 10001 && y2 == -10001){
+                break;
+            }
+
+            if ( (get_hypotenuse(x1,y1,x2,y2)*10) <= safety_distance && (get_hypotenuse(x1,y1,x2,y2)*10) > 0 ){
+                if(print){
+                    help_build_Obstacle(get_angle(x1,y1,x2,y2) , get_hypotenuse(x1,y1,x2,y2) , x1 , y1 ,   print);
+                }
+            }
+	  counter++;
+	}
+
+}
+
+
+void help_build_Obstacle(double angle, double distance, double x, double y,    bool print){
+
+		
+	
+
+
+		while(distance > 0){
+
+			int xTemp = (int)getX(angle,distance,x);
+			int yTemp = (int)getY(angle,distance,y);
+
+			if(occupation_map[xTemp][yTemp] == false){
+				occupation_map[xTemp][yTemp] = true;
+				}
+			distance = distance-0.1;
+		}
+}
+
+
+void map_movement(double angle_N, double distance){
+		/*
+		   angle_N takes following values: -180 to +180, where a negative value
+		   means that the car is turned towards west (left) from north, and a positive
+		   value that it is turned east (right) from north.
+
+		   distance is given in meters
+		*/
+
+		angle_N = angleCheck(angle_N);
+
+		double add_y = distance * round(10000 * getCosinus(angle_N)) /10000;
+		double add_x = distance * round(10000 * getSinus(angle_N)) /10000;
+
+		car_x = car_x + add_x;
+		car_y = car_y + add_y;
+
+	}
+
+
+
+void find_Contourn(int x, int y)
+{
+   int currentX = x;
+    int currentY = y;
+    int posX;
+    int posY;
+    int positionOccupation = 0;
+    bool checked_list[180][180];
+    Queue queueX = createQueue();
+    Queue queueY = createQueue();
+    queueX.push(&queueX, currentX);
+    queueY.push(&queueY, currentY);
+
+    while (queueX.size!= 0)
+    {
+
+        if (!checked_list[currentX][currentY])
+        {       int i;          
+                for ( i = 0; i < 3; ++i)
+                {       int j;
+                        for ( j = 0; j < 3; ++j)
+                        {
+                                posX = currentX-1+i;
+                                posY = currentY-1+j;
+                                if (posX >= 0 && posY >= 0)
+                                {
+                                        if (!(posX == currentX && posY == currentY))
+                                        {
+                                                if(occupation_map[posX][posY] && !checked_list[posX][posY])
+                                                {
+                                                    queueX.push(&queueX, posX);
+                                                    queueY.push(&queueY, posY);
+                                                }
+                                        }
+                                }
+                        }
+                }
+                checked_list[currentX][currentY] = true;
+                objectarray[positionOccupation][0] = currentX;
+                objectarray[positionOccupation][1] = currentY;
+                ++positionOccupation;
+
+        }
+        queueX.pop(&queueX);
+        queueY.pop(&queueY);
+        
+        if (queueX.size != 0)
+        {
+            currentX = queueX.peek(&queueX);
+            currentY = queueY.peek(&queueY);
+        }
+
+        if (queueX.size == 0)
+        {
+            objectarray[positionOccupation][0] = 10001;
+            objectarray[positionOccupation][1] = -10001;
+        }
+    }
+}
+
+
+void intToBoolMap()
+{
+    int i;
+    int temp_x;
+    int temp_y;
+    int size = sizeof(collision_array)/sizeof(collision_array[0]);
+    int size2 = sizeof(objectarray)/sizeof(objectarray[0]);
+    for(i = 0;i < size2;i++)
+    {
+
+        temp_x = objectarray[i][0];
+        temp_y = objectarray[i][1];
+        if(temp_x == 10001 && temp_y == -10001){
+            break;
+        }
+        collision_array[temp_x][temp_y] = true;
+    }
+
+}
+
+
+int * detect_collision(int source_x, int source_y, int target_x, int target_y){
+
+			double angle = get_angle(source_x,source_y,target_x,target_y);
+			double hypotenuse = get_hypotenuse(source_x,source_y,target_x,target_y);
+			double increase = 0;
+			int result[2];
+
+			while(increase <= hypotenuse+0.1){
+
+				int xTemp = (int)getY(angle,increase,source_x);
+				int yTemp = (int)getX(angle,increase,source_y);
+
+				if(occupation_map[xTemp][yTemp]){
+					result[0] = xTemp;
+					result[1] = yTemp;
+					return result;
+				}
+
+				increase = increase+0.1;
+			}
+			return NULL;
+}
+
+
+bool detect_no_collision_bool(int source_x, int source_y, int angle){
+
+
+
+			double hypotenuse = 100000;
+			double increase = 0;
+
+			while(increase <= hypotenuse){
+
+				int xTemp = (int)getY(angle,increase,source_x);
+				int yTemp = (int)getX(angle,increase,source_y);
+
+                if(xTemp > 179 || xTemp < 0 || yTemp > 179 || yTemp < 0){
+                    return false;
+                }
+
+				if(collision_array[xTemp][yTemp]){
+					return true;
+				}
+
+
+
+				increase = increase+0.1;
+			}
+
+			return false;
+}
+
+
+
+int * detect_outer_points(int * collision_point){
+
+    int collision_x = 0;
+    int collision_y = 0;
+    int first_angle;
+    int second_angle;
+
+    if(collision_point != NULL){
+        collision_x = collision_point[0];
+        collision_y = collision_point[1];
+    }
+    else{
+        return NULL;
+    }
+
+
+    int angle = (int) angleCheck(get_angle(car_x,car_y,collision_x,collision_y));
+
+
+    while(detect_no_collision_bool(car_x,car_y,angle)){
+        angle = angle +5;
+    }
+    while(!detect_no_collision_bool(car_x,car_y,angle)){
+        angle--;
+    }
+    first_angle = angleCheck(angle);
+
+
+    while(detect_no_collision_bool(car_x,car_y,angle)){
+        angle = angle -5;
+    }
+    while(!detect_no_collision_bool(car_x,car_y,angle)){
+        angle++;
+    }
+    second_angle = angleCheck(angle);
+
+
+    double hypotenuse = 1000000;
+    double increase = 0;
+    int result[4];
+
+			while(increase <= hypotenuse){
+
+				int xTemp = (int)getY(first_angle,increase,car_x);
+				int yTemp = (int)getX(first_angle,increase,car_y);
+
+				if(collision_array[xTemp][yTemp]){
+					result[0] = xTemp;
+					result[1] = yTemp;
+					break;
+				}
+
+				increase = increase+0.1;
+			}
+
+
+    increase = 0;
+
+			while(increase <= hypotenuse){
+
+				int xTemp = (int)getY(second_angle,increase,car_x);
+				int yTemp = (int)getX(second_angle,increase,car_y);
+
+				if(collision_array[xTemp][yTemp]){
+					result[2] = xTemp;
+					result[3] = yTemp;
+					break;
+				}
+
+				increase = increase+0.1;
+			}
+
+    return result;
+}
+
+
+int * find_way_point(int * outerpoints){
+
+    int first_x;
+    int first_y;
+    int second_x;
+    int second_y;
+
+    if(outerpoints != NULL){
+        first_x = outerpoints[0];
+        first_y = outerpoints[1];
+        second_x = outerpoints[2];
+        second_y = outerpoints[3];
+    }
+    else{
+        return NULL;
+    }
+
+    double first_angle = angleCheck(get_angle(car_x,car_y,first_x,first_y));
+    first_angle = angleCheck(first_angle + 90);
+
+    double second_angle = angleCheck(get_angle(car_x,car_y,second_x,second_y));
+    second_angle = angleCheck(first_angle + 90);
+
+    first_x = (int) (getX(first_angle,20,first_x*10)/10);
+    first_y = (int) (getY(first_angle,20,first_y*10)/10);
+
+    second_x = (int) (getX(second_angle,20,second_x*10)/10);
+    second_y = (int) (getY(second_angle,20,second_y*10)/10);
+
+    int temp [2];
+
+    double first_distance = calc_dist(first_x,first_y);
+    double second_distance = calc_dist(second_x,second_y);
+
+    if(first_distance < second_distance){
+        temp[0] = first_x;
+        temp[1] = first_y;
+    }
+    else{
+        temp[0] = second_x;
+        temp[1] = second_y;
+    }
+
+    return temp;
+
+}
+
+
+double calc_dist(int target_x, int target_y){
+    double dist;
+    dist = get_hypotenuse(car_x,car_y,target_x,target_y) + get_hypotenuse(target_x, target_y, car_target_x, car_target_y);
+    return dist;
+}
+
+
+
+
+
+
+double getX(double degree, double irDistance, double source_x){
+
+		double x = 0;
+		degree = angleCheck(degree);
+		x = source_x + irDistance * round(10000 * getSinus(degree)) /10000;
+		return x;
+
+}
+
+
+double getY(double degree, double irDistance, double source_y){
+
+		double y = 0;
+		degree = angleCheck(degree);
+		y = source_y + irDistance * round(10000 * getCosinus(car_angle+degree)) /10000;
+		return y;
+
+}
+
+
+double get_hypotenuse(double source_x, double source_y, double target_x, double target_y){
+
+		double togo_x = target_x - source_x;
+		double togo_y = target_y - source_y;
+
+		double hypotenuse = sqrt((togo_x * togo_x) + (togo_y * togo_y));
+
+		return hypotenuse;
+	}
+
+
+double get_angle(double source_x, double source_y, double target_x, double target_y){
+
+
+		double togo_x = target_x - source_x;
+		double togo_y = target_y - source_y;
+
+		if(get_hypotenuse(source_x,source_y,target_x,target_y) == 0){
+
+            return 0;
+		}
+
+		double angle = round((asin(togo_y/get_hypotenuse(source_x,source_y,target_x,target_y))) * 180 / PI);
+
+		if(togo_x < 0){
+			if(togo_y < 0){
+				angle = angle - 90;
+			}
+		}else{
+			if(togo_y < 0){
+				angle = angle + 90;
+			}
+		}
+
+		return angle;
+}
+
+
+double angleCheck(double degree){ // Returns ANY given angle in degree between -180 and 180 (0 == North)
+
+
+        int temp1 = ((int)degree) % 360;
+        int temp3 = (int)degree;
+        double temp2 = (degree - temp3);
+        degree = temp1+temp2;
+
+
+		if(degree < -180){
+			degree = 360 + degree;
+		}
+		if(degree > 180){
+			degree = -360 + degree;
+		}
+		return degree;
+}
+
+
+double getSinus(double angleInDegrees) {
+
+        return sin(angleInDegrees * PI / 180);
+
+}
+
+
+double getCosinus(double angleInDegrees){
+
+        return cos(angleInDegrees * PI / 180);
+}
+
+
+
+
+void push (Queue* queue, int item) {
+    // Create a new node
+    Node* n = (Node*) malloc (sizeof(Node));
+    n->item = item;
+    n->next = NULL;
+
+    if (queue->head == NULL) { // no head
+        queue->head = n;
+    } else{
+        queue->tail->next = n;
+    }
+    queue->tail = n;
+    queue->size++;
+}
+/**
+ * Return and remove the first item.
+ */
+int pop (Queue* queue) {
+    // get the first item
+    Node* head = queue->head;
+    int item = head->item;
+    // move head pointer to next node, decrease size
+    queue->head = head->next;
+    queue->size--;
+    // free the memory of original head
+    free(head);
+    return item;
+}
+/**
+ * Return but not remove the first item.
+ */
+int peek (Queue* queue) {
+    Node* head = queue->head;
+    return head->item;
+}
+/**
+ * Show all items in queue.
+ */
+void display (Queue* queue) {
+    // no item
+    if (queue->size == 0){
+    }
+    else { // has item(s)
+        Node* head = queue->head;
+        int i, size = queue->size;
+        for (i = 0; i < size; i++) {
+            if (i > 0){
+            }
+            head = head->next;
+        }
+    }
+}
+/**
+ * Create and initiate a Queue
+ */
+Queue createQueue () {
+    Queue queue;
+    queue.size = 0;
+    queue.head = NULL;
+    queue.tail = NULL;
+    queue.push = &push;
+    queue.pop = &pop;
+    queue.peek = &peek;
+    queue.display = &display;
+    return queue;
+}
+
+
